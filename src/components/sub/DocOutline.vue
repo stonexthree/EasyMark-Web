@@ -147,7 +147,8 @@ const nodeProps: (arg: any) => any = ({option}: { option: TreeOption }) => {
   return {
     onClick() {
       const a = document.createElement('a') as HTMLAnchorElement;
-      a.href='#' + option.label;
+      const targetId = option.label?.replaceAll(' ','-').toLowerCase();
+      a.href='#' + targetId;
       //router.push(router.currentRoute.value.path + '#' + option.label);
       a.click();
     }
