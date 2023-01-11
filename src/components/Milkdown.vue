@@ -407,7 +407,7 @@ onBeforeRouteLeave((to,from)=>{
   width: 90%;
   left: 80px;
   height: 100%;
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 

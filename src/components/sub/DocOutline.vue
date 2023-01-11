@@ -164,7 +164,7 @@ const nodeProps: (arg: any) => any = ({option}: { option: TreeOption }) => {
   width: 200px;
   overflow: scroll;
   height: 600px;
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 
