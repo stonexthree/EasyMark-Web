@@ -1,7 +1,7 @@
 <template>
-  <SearchTool />
   <div class="head-line-container">
-    <div class="logo">
+    <SearchTool />
+    <div class="logo" @click="router.push('/index')">
       <n-icon size="64" :color="colorSet.fontColor" class="img-logo" >
         <DrawFilled />
       </n-icon>
@@ -159,13 +159,16 @@ const zIndex:Ref<any>=ref(2);
 .logo {
   position: absolute;
   height: 100%;
-  width: 400px;
+  width: 200px;
   left: 48px;
   color: v-bind(colorSet.fontColor);
   font-size: 4em;
   user-select: none;
   line-height: 80px;
   font-style: italic;
+}
+.logo:hover{
+  cursor:pointer;
 }
 
 .theme-change{

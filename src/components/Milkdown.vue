@@ -4,7 +4,7 @@
       'editor-to-wide': (!outLineFirstLoaded)&&(!showOutline)}">
     <VueEditor id="milkdown-root" :editor="editor"/>
     <div class="side-icon-bar"
-         :style="{ backgroundColor: customComponentThemeProvider.colorSet.halfDeep}"><!---->
+         :style="{ backgroundColor: customComponentThemeProvider.colorSet.halfDeep}">
       <n-icon :color="colorSet.fontColor2" size="24" class="icon bar-controller" @click="showSideBar=!showSideBar">
         <ChevronDown48Regular/>
       </n-icon>
@@ -13,6 +13,10 @@
       'hide-bar': (!sideBarFirstLoaded)&&(!showSideBar)}">
         <n-icon :color="colorSet.fontColor2" size="24" class="icon upload-icon" @click="showOutline=!showOutline">
           <TextBulletListTree16Regular/>
+        </n-icon>
+        <n-icon :color="colorSet.fontColor2" size="24" class="icon upload-icon" @click="fullScreenStatus=!fullScreenStatus">
+          <FullScreenMaximize24Regular v-show="!fullScreenStatus" />
+          <FullScreenMinimize24Regular v-show="fullScreenStatus" />
         </n-icon>
         <div v-show=!readOnly>
           <n-icon :color="colorSet.fontColor2" size="24" class="icon upload-icon" @click="uploadDoc">
@@ -64,14 +68,14 @@ import {insert, replaceAll, forceUpdate, switchTheme,outline} from '@milkdown/ut
 import {VueEditor, useEditor} from "@milkdown/vue";
 import {defineComponent, defineProps, ref, Ref, onMounted, watch, computed} from "vue";
 import {CloudUploadOutlined, PictureOutlined} from "@vicons/antd";
-import {ChevronDown48Regular, TextBulletListTree16Regular} from '@vicons/fluent'
+import {ChevronDown48Regular, TextBulletListTree16Regular,FullScreenMaximize24Regular,FullScreenMinimize24Regular} from '@vicons/fluent'
 import {NIcon, NEllipsis, NDialogProvider, useDialog, useNotification, NModal, NCard} from "naive-ui";
 import axios from 'axios';
 import {AxiosRequestConfig} from 'axios'
 import {DocApi, TagApi} from '../api-define'
 import {vue} from '../main'
 import {useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
-import {loginStatus} from '../globalStatus'
+import {loginStatus,fullScreenStatus} from '../globalStatus'
 import PictureUpload from './PictureUpload.vue'
 import {ImageAction} from '../model/models'
 import {blankTransport} from '../tooles'
@@ -391,22 +395,10 @@ function refreshOutline(){
   docOutlines.value = editorRef.value?.action(outline());
 }
 
-/*//聚焦控制
-function focusElement(){
-  if(route.path.split('#',2).length<2){
-    return;
-  }
-  console.log(123);
-  const target:HTMLElement =<HTMLElement> document.getElementById(route.path.split('#',2)[1]);
-  const edi:HTMLElement =<HTMLElement> document.getElementById('milkdown-root');
-  edi?.scrollTo(0,target.offsetTop-edi.offsetTop+edi.scrollTop);
-}
-watch(route,async (nV,oV)=>{
-  focusElement();
-})
-onMounted(()=>{
-  focusElement();
-})*/
+//离开编辑器后自动退出编辑器全屏
+onBeforeRouteLeave((to,from)=>{
+  fullScreenStatus.value = false;
+});
 
 </script>
 <style scoped>
@@ -517,13 +509,13 @@ onMounted(()=>{
     height: 0px;
   }
   100% {
-    height: 162px;
+    height: 216px;
   }
 }
 
 @keyframes bar-container-hide {
   0% {
-    height: 162px;
+    height: 216px;
   }
   100% {
     height: 0px;

@@ -5,13 +5,17 @@
       <n-dialog-provider>
         <LoginMask :is-login=loginStatus.isLogin @login-success='loginStatus.loginSuccess()'/>
         <div id="app-content">
-          <HeadLine id="headline"/>
+          <HeadLine id="headline" :class="{'header-hide':(!componentFirstLoad)&&(fullScreenStatus),
+                                           'header-show':(!componentFirstLoad)&&(!fullScreenStatus)}" />
         </div>
-        <MiniOptionsPanel id="options-panel"/>
-        <div id="main-div">
+        <MiniOptionsPanel id="options-panel" :class="{'options-hide':(!componentFirstLoad)&&(fullScreenStatus),
+                                                      'options-show':(!componentFirstLoad)&&(!fullScreenStatus)}" />
+        <div id="main-div" :class="{'full-screen':(!componentFirstLoad)&&(fullScreenStatus),
+                                    'exit-full-screen':(!componentFirstLoad)&&(!fullScreenStatus)}">
           <router-view :key="$route.path"></router-view>
         </div>
-        <div id="extend-message">
+        <div id="extend-message" :class="{'options-hide':(!componentFirstLoad)&&(fullScreenStatus),
+                                          'options-show':(!componentFirstLoad)&&(!fullScreenStatus)}">
           <svg :style="githubStyle" @click="goGithub">
             <LogoGithub />
           </svg>
@@ -29,9 +33,10 @@ import {loginStatus} from './globalStatus'
 import {customComponentThemeProvider,ColorSet} from './theme.js'
 import axios from "axios";
 import {UserApi} from "./api-define";
-import { onMounted,computed } from 'vue'
+import { onMounted,computed,Ref,ref,watch } from 'vue'
 import {LogoGithub} from '@vicons/carbon'
 import PictureUpload from './components/PictureUpload.vue'
+import {fullScreenStatus} from './globalStatus'
 
 function loadProfile(){
   axios.request(UserApi.getMyProfile()).then((response)=>{
@@ -60,6 +65,13 @@ const githubStyle = computed(()=>{
 function goGithub(){
   window.open("https://github.com/stonexthree/EasyMark","_blank");
 }
+
+//主区全屏控制
+const componentFirstLoad:Ref<boolean> = ref(true);
+watch(fullScreenStatus,async (newV,oldV)=>{
+  componentFirstLoad.value=false;
+} )
+
 
 </script>
 
@@ -99,6 +111,8 @@ export default {
 #headline {
   position: fixed;
   top: 0px;
+  animation-duration: 1s;
+  animation-fill-mode: both;
 }
 
 #side-options {
@@ -107,6 +121,8 @@ export default {
 
 #options-panel {
   position: fixed;
+  animation-duration: 1s;
+  animation-fill-mode: both;
 }
 
 #extend-message{
@@ -114,6 +130,8 @@ export default {
   bottom: 20px;
   left: 48px;
   color: v-bind(colorSet.fontColor4);
+  animation-duration: 1s;
+  animation-fill-mode: both;
 }
 
 #main-div {
@@ -126,6 +144,8 @@ export default {
   flex-flow: row;
   overflow-y: scroll;
   overflow-x: hidden;
+  animation-duration: 1s;
+  animation-fill-mode: both;
 }
 #main-div::-webkit-scrollbar{
   display: none;
@@ -141,4 +161,88 @@ svg:hover{
   width: 100%;
   background-color: v-bind(colorSet.deep);
 }
+
+.full-screen{
+  animation-name:main-div-fullscreen;
+}
+.exit-full-screen{
+  animation-name: main-div-exit-fullscreen;
+}
+
+@keyframes main-div-fullscreen {
+  0%{
+    top:100px;
+    left: 200px;
+    height: calc(100% - 100px);
+  width: calc(100% - 200px);
+  }
+  100%{
+    top:0px;
+    left: 0px;
+    height: 100%;
+  width: 100%;
+  }
+}
+
+@keyframes main-div-exit-fullscreen {
+  0%{
+    top:0px;
+    left:0px;
+    height: 100%;
+  width: 100%;
+  }
+  100%{
+    top:100px;
+    left:200px;
+    height: calc(100% - 100px);
+  width: calc(100% - 200px);
+  }
+}
+.options-show{
+  animation-name:options-show;
+}
+.options-hide{
+  animation-name: options-hide;
+}
+@keyframes options-hide{
+  0%{
+    left:60px;
+  }
+  100%{
+    left: -200px;
+  }
+}
+@keyframes options-show{
+  0%{
+    left:-200px;
+  }
+  100%{
+    left: 60px;
+  }
+}
+
+.header-show{
+  animation-name:header-show;
+}
+.header-hide{
+  animation-name: header-hide;
+}
+@keyframes header-hide{
+  0%{
+    top:0px;
+  }
+  100%{
+    top: -100px;
+  }
+}
+@keyframes header-show{
+  0%{
+    top:-100px;
+  }
+  100%{
+    top: 0px;
+  }
+}
+
+
 </style>

@@ -58,3 +58,5 @@ export const searchStatus: Ref<{ showSearchTool: boolean, lastSearchResult: DocI
     lastSearchResult: [],
     searchApi: {}
 })
+
+export const fullScreenStatus:Ref<boolean> = ref(false);

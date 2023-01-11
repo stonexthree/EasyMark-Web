@@ -101,4 +101,5 @@ export default {
   border-color: v-bind(colorSet.extension1);
   background-color: v-bind(colorSet.halfDeep);
 }
+
 </style>
