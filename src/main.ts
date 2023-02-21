@@ -13,6 +13,7 @@ import AccountProfile from './components/AccountProfile.vue'
 import {searchStatus,loginStatus} from './globalStatus'
 import axios from 'axios'
 import {DocApi} from './api-define'
+import { ThemeStatus } from './theme';
 
 //控制缩放
 function bodyScale() {
@@ -106,3 +107,19 @@ const router = createRouter({
 const vue = createApp(App);
 vue.use(router).mount('#app');
 export {vue,webRoute};
+
+//默认主题跟随系统
+const themeMedia = window.matchMedia("(prefers-color-scheme: light)");
+if(themeMedia.matches){
+    ThemeStatus.value.change('NordSnowStorm');
+}else{
+    ThemeStatus.value.change('NordPolarNight');
+}
+//系统主题切换时跟随变化
+themeMedia.addEventListener( "change",e => {
+    if(themeMedia.matches){
+        ThemeStatus.value.change('NordSnowStorm');
+    }else{
+        ThemeStatus.value.change('NordPolarNight');
+    }
+} )

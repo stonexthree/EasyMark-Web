@@ -9,7 +9,7 @@
     </div>
     <n-list :show-divider=true hoverable clickable class="list" style="position: absolute;left: 0px;width: 100%">
       <n-list-item class="list-row" v-for="doc in docArray" @click="onRowClick(doc.docId)" style="height: 80px;width: 100%">
-        <p class="line-text" style="left: 20px;width: calc(70% - 40px);">{{ doc.docName }}</p>
+        <p class="line-text" style="left: 20px;width: calc(70% - 40px);font-size: 1.5em;">{{ doc.docName }}</p>
         <p class="line-text" style="left:70%;width: calc(20% - 10px)">{{ doc.docAuthor }}</p>
         <p class="line-text" style="left:90%;width: calc(10% - 10px)">{{ doc.updateTimestamp }}</p>
       </n-list-item>
