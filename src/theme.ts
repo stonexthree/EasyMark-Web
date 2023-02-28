@@ -28,7 +28,14 @@ export interface ColorSet {
     heightLight3: string,
     heightLight4: string,
     extension1: string,
-    extension2: string
+    extension2: string,
+    specialExtension: {
+        tag: string,
+        fire: string,
+        goldMedal: string,
+        silverMedal: string,
+        bronzMedal: string
+    }
 }
 
 export type ThemeName = 'NordPolarNight' | 'NordSnowStorm';
@@ -52,7 +59,14 @@ const nordPolarNightColorSet: ColorSet = {
     heightLight3: '#4C566A',
     heightLight4: '#4C566A',
     extension1: '#1E92A0FF',
-    extension2: '#191C21'
+    extension2: '#191C21',
+    specialExtension: {
+        tag: '#9cce74',
+        fire: '#ff9898',
+        goldMedal: '#fff3b5',
+        silverMedal: '#a2c9d4',
+        bronzMedal: '#9f6464'
+    }
 };
 const nordPolarNightTheme: ThemeProvider = {
     perSet: darkTheme,
@@ -123,7 +137,14 @@ const nordSnowStormColorSet: ColorSet = {
     heightLight3: '#B8B2D3',
     heightLight4: '#8A80B2',
     extension1: '#7A8CAB',
-    extension2: '#AEBACF'
+    extension2: '#AEBACF',
+    specialExtension: {
+        tag: '#59b70e',
+        fire: '#ff9898',
+        goldMedal: '#fff3b5',
+        silverMedal: '#a2c9d4',
+        bronzMedal: '#9f6464'
+    }
 };
 const nordSnowStormTheme: ThemeProvider = {
     perSet: null,

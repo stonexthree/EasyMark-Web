@@ -2,6 +2,7 @@ import {createApp, render} from 'vue'
 //import './style.css'
 import App from './App.vue'
 import {createRouter, createWebHistory} from "vue-router";
+import Index from "./components/Index.vue"
 import DocList from "./components/DocList.vue";
 import Milkdown from "./components/Milkdown.vue";
 import MemberDoc from "./components/MemberDoc.vue";
@@ -24,7 +25,7 @@ function bodyScale() {
 window.onload = window.onresize = function () {
     bodyScale();
 };
-
+//axios 全局异常处理
 axios.interceptors.response.use(function (response) {
     if(response.data.code === 'A0200'){
         loginStatus.loginFailed();
@@ -36,6 +37,11 @@ axios.interceptors.response.use(function (response) {
 });
 
 const webRoute = [
+    {
+        name: 'index',
+        path: '/index',
+        component: Index
+    },
     {
         name: 'docList',
         path: "/doc-list", component: DocList, props: {
