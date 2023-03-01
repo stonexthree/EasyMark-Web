@@ -9,9 +9,9 @@
     </div>
     <n-list :show-divider=true hoverable clickable class="list" style="position: absolute;left: 0px;width: 100%">
       <n-list-item class="list-row" v-for="doc in docArray" @click="onRowClick(doc.docId)" style="height: 80px;width: 100%">
-        <p class="line-text" style="left: 20px;width: calc(70% - 40px);font-size: 1.5em;">{{ doc.docName }}</p>
-        <p class="line-text" style="left:70%;width: calc(20% - 10px)">{{ doc.docAuthor }}</p>
-        <p class="line-text" style="left:90%;width: calc(10% - 10px)">{{ doc.updateTimestamp }}</p>
+        <p class="line-text doc-name" style="">{{ doc.docName }}</p>
+        <p class="line-text doc-author" style="">{{ doc.docAuthor }}</p>
+        <p class="line-text doc-updateTimestamp" style="">{{ doc.updateTimestamp }}</p>
       </n-list-item>
     </n-list>
   </div>
@@ -40,7 +40,8 @@ const props = defineProps({
   actionEnabled: Boolean,
   widthPercent: Number,
   showEditIcon: Boolean,
-  resultEditable: Boolean
+  resultEditable: Boolean,
+  clickRow: Function
 })
 const loading: Ref<boolean> = ref(false);
 const docDemoList: DocInfo[] = DocInfo.mockArray(10);
@@ -51,6 +52,10 @@ const a: string = 'a'
 const router = useRouter();
 
 function onRowClick(docId: string): void {
+  if(props.clickRow !== null && props.clickRow!==undefined){
+    props.clickRow(docId);
+    return;
+  }
   if (props.resultEditable) {
     router.push('/edit-doc/' + docId);
     return;
@@ -163,8 +168,23 @@ const colorSet = computed(() => {
   transform: translateY(-50%);
   margin: 0px;
   overflow-x: scroll ;
+  color: v-bind(colorSet.fontColor4);
 }
 .line-text::-webkit-scrollbar{
   display: none;
+}
+.doc-name{
+  left: 20px;
+  width: calc(70% - 40px);
+  font-size: 1.2em;
+  color: v-bind(colorSet.fontColor3);
+}
+.doc-author{
+  left:70%;
+  width: calc(20% - 10px);
+}
+.doc-updateTimestamp{
+  left:90%;
+  width: calc(10% - 10px);
 }
 </style>

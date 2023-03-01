@@ -20,6 +20,7 @@ const commonOptions:{optionsKey:string,routeName:string,routePath:string}[] = [
   { optionsKey: 'docList',routeName: '文档列表', routePath: '/doc-list'},
   {optionsKey: 'memberDoc',routeName: '成员文档', routePath: '/member-doc'},
   {optionsKey:'myDoc',routeName: '我的文档', routePath: '/my-doc'},
+  {optionsKey:'myDraft',routeName: '我的草稿', routePath: '/my-draft'},
   {optionsKey: 'newDoc',routeName: '编写文档', routePath: '/new-doc'},
 ]
 const adminOptions:{optionsKey:string,routeName:string,routePath:string}[] = [

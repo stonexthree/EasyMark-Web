@@ -127,6 +127,12 @@ const DocApi = {
             method: 'GET'
         }
     },
+    'getMyDrafts': () => {
+        return {
+            url: baseURL + 'doc/my-drafts',
+            method: 'GET'
+        }
+    },
     'getDocContent': (docId: string) => {
         return {
             url: baseURL + 'doc/markdown/' + docId,
@@ -156,6 +162,17 @@ const DocApi = {
             }
         }
     },
+    'saveDocAsDraft': (docName: string, content: string) => {
+        return {
+            url: baseURL + 'doc/draft',
+            method: 'POST',
+            headers: {'Content-Type': 'multipart/form-data; '},
+            data: {
+                docName: docName,
+                content: content
+            }
+        }
+    },
     'modifyDoc': (docId: string, content: string) => {
         return {
             url: baseURL + 'doc/markdown/content/' + docId,
@@ -175,6 +192,19 @@ const DocApi = {
                 name: title
             }
         }
+    },
+    'submitDraft':(docId: string ,labelName:string[] = []) =>{
+            return {
+                url: baseURL + 'doc/draft/submit',
+                method: 'PUT',
+                headers: {'Content-Type': 'multipart/form-data; '},
+                data: labelName.length === 0? {
+                    'doc-id':docId,
+                }:{
+                    'doc-id':docId,
+                    'label-name': labelName.join(',')
+                }
+            }
     }
 }
 

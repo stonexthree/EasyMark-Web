@@ -7,6 +7,7 @@ import DocList from "./components/DocList.vue";
 import Milkdown from "./components/Milkdown.vue";
 import MemberDoc from "./components/MemberDoc.vue";
 import MyDoc from "./components/MyDoc.vue";
+import MyDrafts from './components/MyDrafts.vue';
 import Test from "./components/Test.vue";
 import ShowDoc from './components/ShowDoc.vue'
 import AccountManagement from './components/AccountManagement.vue'
@@ -35,7 +36,7 @@ axios.interceptors.response.use(function (response) {
     console.log(error);
     return Promise.reject(error);
 });
-
+//路由配置
 const webRoute = [
     {
         name: 'index',
@@ -45,7 +46,7 @@ const webRoute = [
     {
         name: 'docList',
         path: "/doc-list", component: DocList, props: {
-            widthPercent: 80,
+            widthPercent: 90,
             docsApiConfig:DocApi.getAllDoc()
         }
     },
@@ -59,7 +60,14 @@ const webRoute = [
         name: 'myDoc',
         path: "/my-doc", component: MyDoc, props: {
             loading: false,
-            widthPercent: 80
+            widthPercent: 90
+        }
+    },
+    {
+        name: 'myDraft',
+        path: "/my-draft", component: MyDrafts, props: {
+            loading: false,
+            widthPercent: 90
         }
     },
     {
@@ -75,6 +83,12 @@ const webRoute = [
     {
         name: 'editDoc',
         path: '/edit-doc/:docId', component: Milkdown, props: {
+            preload: true,
+        }
+    },
+    {
+        name: 'editDraft',
+        path: '/edit-draft/:docId', component: Milkdown, props: {
             preload: true,
         }
     },
@@ -105,11 +119,16 @@ const webRoute = [
         path: '/test',component: Test
     }
 ]
-
 const router = createRouter({
     history: createWebHistory(),
     routes: webRoute
 })
+router.beforeEach(async (to,from)=>{
+    if(to.fullPath === '/' || to.fullPath === ''){
+        return {name: 'index'}
+    }
+})
+
 const vue = createApp(App);
 vue.use(router).mount('#app');
 export {vue,webRoute};
