@@ -53,7 +53,7 @@ const webRoute = [
     {
         name: 'memberDoc',
         path: "/member-doc", component: MemberDoc, props: {
-            widthPercent: 80
+            widthPercent: 90
         }
     },
     {
@@ -108,12 +108,12 @@ const webRoute = [
         path: '/account-management',
         component: AccountManagement
     },
-    {
-        name:'accountProfile',
-        path:'/profile',
-        component: AccountProfile
-    }
-    ,
+    // {
+    //     name:'accountProfile',
+    //     path:'/profile',
+    //     component: AccountProfile
+    // }
+    // ,
     {
         name: 'test',
         path: '/test',component: Test

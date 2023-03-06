@@ -261,7 +261,7 @@ const PictureApi = {
         return {
             url: baseURL + 'user/photo',
             method: 'POST',
-            photo: form
+            data: form
         }
     }
 }
