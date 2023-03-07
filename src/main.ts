@@ -44,15 +44,8 @@ const webRoute = [
         component: Index
     },
     {
-        name: 'docList',
-        path: "/doc-list", component: DocList, props: {
-            widthPercent: 90,
-            docsApiConfig:DocApi.getAllDoc()
-        }
-    },
-    {
-        name: 'memberDoc',
-        path: "/member-doc", component: MemberDoc, props: {
+        name: 'docs',
+        path: "/docs", component: MemberDoc, props: {
             widthPercent: 90
         }
     },
