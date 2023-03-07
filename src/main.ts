@@ -64,6 +64,17 @@ const webRoute = [
         }
     },
     {
+        name: 'myCollection',
+        path: "/my-collection", component: DocList,
+        props(){
+            return {
+                docsApiConfig:DocApi.listMyCollections(),
+                loading: false,
+                widthPercent: 90
+            }
+        }
+    },
+    {
         name:'newDoc',
         path: "/new-doc", component: Milkdown
     },
@@ -92,7 +103,7 @@ const webRoute = [
             return {
                 docsApiConfig:searchStatus.value.searchApi,
                 loading: false,
-                widthPercent: 80
+                widthPercent: 90
             }
         }
     },

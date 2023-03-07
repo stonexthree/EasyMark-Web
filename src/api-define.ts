@@ -205,6 +205,30 @@ const DocApi = {
                     'label-name': labelName.join(',')
                 }
             }
+    },
+    'collectDoc':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collections/' + docId,
+            method: 'PUT'
+        }
+    },
+    'removeCollected':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collections/' + docId,
+            method: 'DELETE'
+        }
+    },
+    'listMyCollections':()=>{
+        return {
+            url: baseURL + 'doc/collections',
+            method: 'GET'
+        }
+    },
+    'isDocCollected':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collect/status/' + docId,
+            method: 'GET'
+        }
     }
 }
 

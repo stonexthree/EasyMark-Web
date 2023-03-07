@@ -22,6 +22,12 @@
           <FullScreenMaximize24Regular v-show="!fullScreenStatus" />
           <FullScreenMinimize24Regular v-show="fullScreenStatus" />
         </n-icon>
+        <div v-show="readOnly">
+          <n-icon :color="colorSet.fontColor2" size="24" class="icon" @click="collectedReverse">
+            <StarOutlined v-if="!isDocCollected"/>
+            <StarFilled v-else />
+          </n-icon>
+        </div>
         <div v-show=!readOnly>
           <n-icon :color="colorSet.fontColor2" size="24" class="icon" @click="showPictureSelectModal = true">
             <n-tooltip trigger="hover" placement="left-start">
@@ -89,7 +95,7 @@ import { nordDark, nordLight } from '@milkdown/theme-nord';
 import { insert, replaceAll, forceUpdate, switchTheme, outline } from '@milkdown/utils';
 import { VueEditor, useEditor } from "@milkdown/vue";
 import { defineComponent, defineProps, ref, Ref, onMounted, watch, computed } from "vue";
-import { CloudUploadOutlined, PictureOutlined } from "@vicons/antd";
+import { CloudUploadOutlined, PictureOutlined,StarOutlined,StarFilled } from "@vicons/antd";
 import { ChevronDown48Regular, TextBulletListTree16Regular, FullScreenMaximize24Regular, FullScreenMinimize24Regular, Save16Regular } from '@vicons/fluent'
 import { NIcon, NEllipsis, NDialogProvider, useDialog, useNotification, NModal, NCard, NTooltip, NSpin } from "naive-ui";
 import axios from 'axios';
@@ -497,10 +503,46 @@ function iconNotification(iconName: string): string {
   return '错误';
 }
 
+//收藏功能
+const isDocCollected:Ref<boolean> = ref(false);
+function refreshCollectStatus(){
+  if(editable()){
+    return;
+  }
+  const docId = getDocId();
+  axios.request(DocApi.isDocCollected(docId)).then((request)=>{
+    if(request.data.code === '00000'){
+      isDocCollected.value = request.data.data;
+    }
+  })
+}
+function collectedReverse(){
+  let config = isDocCollected.value ? DocApi.removeCollected(getDocId()) : DocApi.collectDoc(getDocId());
+  axios.request(config).then((response)=>{
+    if(response.data.code='00000'){
+      const message = isDocCollected.value ? '取消收藏成功':'收藏成功';
+      isDocCollected.value = !isDocCollected.value;
+      notification.create({
+        title: message,
+        duration: 2500,
+        closable: false
+      })
+    }
+  })
+}
+
 //离开编辑器后自动退出编辑器全屏
 onBeforeRouteLeave((to, from) => {
   fullScreenStatus.value = false;
 });
+
+onMounted(()=>{
+  refreshCollectStatus();
+})
+//登录状态变更后触发
+watch(loginStatus,(oldV,newV)=>{
+  refreshCollectStatus();
+})
 
 </script>
 <style scoped>
