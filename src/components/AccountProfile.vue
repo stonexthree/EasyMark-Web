@@ -83,6 +83,7 @@ const photoUrl:Ref<string> = ref('');
 function photoUpload(){
   const fileSelect = document.createElement('input');
   fileSelect.type = 'file';
+  fileSelect.accept='image/x-png,image/gif,image/jpeg,image/bmp';
   fileSelect.multiple=false;
   fileSelect.onchange=function (e:any){
     const fileArr:Array<Blob> = e.target.files;
@@ -91,6 +92,12 @@ function photoUpload(){
     axios.request(PictureApi.upoloadUserPhoto(form)).then((response)=> {
       if(response.data.code === '00000'){
         loadPhoto();
+      }else{
+        notification.create({
+          title: '失败',
+          content: response.data.message,
+          duration: 2000
+        })
       }
     }).catch((response)=>console.log(response.data));
   }

@@ -119,7 +119,7 @@ const showAccountProfileModal:Ref<boolean> = ref(false);
 }*/
 
 function clickLogout(){
-  console.log('call logout');
+  //console.log('call logout');
   axios.request(UserApi.logout()).then((response) =>{
     if(response.data.code === '00000'){
       loginStatus.loginFailed();

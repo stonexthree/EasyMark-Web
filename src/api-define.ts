@@ -276,7 +276,7 @@ const SearchApi = {
 const PictureApi = {
     upload:(form:FormData) => {
         return {
-            url: baseURL + 'files/upload',
+            url: baseURL + 'files/picture',
             method: 'POST',
             data: form
         }

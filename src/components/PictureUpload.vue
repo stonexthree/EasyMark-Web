@@ -40,7 +40,7 @@ export default {
 
 <script setup lang="ts">
 import {Ref, ref,computed} from 'vue'
-import {NImage, NIcon,NDivider,NEmpty,NButton} from 'naive-ui'
+import {NImage, NIcon,NDivider,NEmpty,NButton,useNotification} from 'naive-ui'
 import {Add} from '@vicons/carbon'
 import {BrokenImageOutlined} from '@vicons/material'
 import {ImageAction} from '../model/models'
@@ -52,6 +52,7 @@ import {customComponentThemeProvider,ColorSet} from '../theme'
 const pictureUrls: Ref<string[]> = ref([]);
 const detailUrl: Ref<string> = ref('');
 const showNothing: Ref<boolean> = ref(true);
+const notification = useNotification();
 
 /*function mockPictures(initSize: number): void {
   const url = 'http://127.0.0.1:8081/picture/18f2f437-21d0-4a94-97a9-07dd2a9798e7.jpg'
@@ -76,6 +77,7 @@ function clickUpload():void{
   const fileSelect = document.createElement('input');
   fileSelect.type = 'file';
   fileSelect.multiple=true;
+  fileSelect.accept='image/x-png,image/gif,image/jpeg,image/bmp';
   fileSelect.onchange=function (e:any){
     const fileArr:Array<Blob> = e.target.files;
     const form = new FormData();
@@ -84,6 +86,13 @@ function clickUpload():void{
       form.append('file',file);
     }
     axios.request(PictureApi.upload(form)).then((response)=> {
+      if(response.data.code !== '00000'){
+        notification.create({
+          title: '失败',
+          content: response.data.message,
+          duration: 2000
+        })
+      }
       for(let i in response.data.data){
         const name = <string> response.data.data[i];
         pictureUrls.value.push(UrlConstructor.pictureUrl(name));
