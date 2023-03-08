@@ -147,7 +147,8 @@ const nodeProps: (arg: any) => any = ({option}: { option: TreeOption }) => {
   return {
     onClick() {
       const a = document.createElement('a') as HTMLAnchorElement;
-      const targetId = option.label?.replaceAll(' ','-').toLowerCase();
+      const ignoreReg = /[`~!@#$%^&*()+=|{}':;',/\/\[\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]/g;
+      const targetId = option.label?.replaceAll(' ','-').replaceAll(ignoreReg,'').toLowerCase();
       a.href='#' + targetId;
       //router.push(router.currentRoute.value.path + '#' + option.label);
       a.click();

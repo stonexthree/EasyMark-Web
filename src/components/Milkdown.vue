@@ -477,7 +477,10 @@ watch(showOutline, async (newV, oldV) => {
 })
 const docOutlines: Ref<any> = ref([]);
 function refreshOutline() {
-  docOutlines.value = editorRef.value?.action(outline());
+  //组件内部统计大纲和获取大纲是异步进行的，需要延迟一下获取大纲的时间来确保获得的大纲是最新的
+  setTimeout(() => {
+    docOutlines.value = editorRef.value?.action(outline());
+  }, 200);
 }
 
 //按钮提示内容控制
