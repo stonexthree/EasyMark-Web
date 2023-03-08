@@ -8,7 +8,8 @@
                 热门文档
             </div>
             <div id="view-charts-content">
-                <div v-for="(doc, index) in docViewCharts" class="doc-info-card" @click="router.push({name:'showDoc',params:{docId:doc.location}})">
+                <div v-for="(doc, index) in docViewCharts" class="doc-info-card"
+                    @click="router.push({ name: 'showDoc', params: { docId: doc.location } })">
                     <div class="list-rank" :style="{ color: rankColor(index + 1) }">
                         <n-icon class="trophy" size="20" v-show="index < 3">
                             <MdTrophy />
@@ -27,7 +28,12 @@
                         </div>
                     </div>
                     <div class="photo-area">
-                        <n-image class="photo" :src="doc.docAuthorPhotoUrl" width="40" height="40" preview-disabled/>
+                        <n-icon class="default-icon photo" size="40" v-if="doc.docAuthorPhotoUrl === ''">
+                            <UserOutlined />
+                        </n-icon>
+                        <img v-else class="photo" :src="doc.docAuthorPhotoUrl" />
+                        <!-- <n-image class="photo" :src="doc.docAuthorPhotoUrl" width="40" height="40" preview-disabled/> -->
+
                         <div class="author-nickname">{{ doc.docAuthorNickname }}</div>
                     </div>
                     <div class="views">{{ '浏览量：' + doc.views }}</div>
@@ -56,16 +62,21 @@
                     <n-tab-pane name="文档编写排行">
                         <div class="common-charts-content">
                             <div class="author-info" v-for="(author, index) in authorCharts">
-                                <div class="author-rank">{{  index+1 }}</div>
+                                <div class="author-rank">{{ index + 1 }}</div>
                                 <div class="author-photo">
-                                    <n-image class="photo" :src="author.authorPhotoUrl" width="40" height="40" preview-disabled/>
+                                    <n-icon class="default-icon photo" size="40" v-if="author.authorPhotoUrl === ''">
+                                        <UserOutlined />
+                                    </n-icon>
+                                    <img v-else class="photo" :src="author.authorPhotoUrl" />
+                                    <!-- <n-image class="photo" :src="author.authorPhotoUrl" width="40" height="40"
+                                        preview-disabled /> -->
                                 </div>
                                 <div class="author-nickname">{{ author.authorNickname }}</div>
-                                    <!-- <n-icon size="24" class="file-display-icon">
+                                <!-- <n-icon size="24" class="file-display-icon">
                                         <File />
                                     </n-icon> -->
                                 <div class="author-doc-counts">
-                                    {{'文档数：' +  author.docCounts }}
+                                    {{ '文档数：' + author.docCounts }}
                                 </div>
                             </div>
                         </div>
@@ -74,14 +85,14 @@
                         <div class="common-charts-content">
                             <div class="tag-line" v-for="tag in tagUsedCharts">
                                 <n-icon size="24" class="tag-icon">
-                                <Tag20Regular />
-                            </n-icon>
-                            <div class="tag-name">
-                                {{ tag.tagName}}
-                            </div>
-                            <div class="tag-used-counts">
-                                {{ '标签使用量：'+tag.usedCounts }}
-                            </div>
+                                    <Tag20Regular />
+                                </n-icon>
+                                <div class="tag-name">
+                                    {{ tag.tagName }}
+                                </div>
+                                <div class="tag-used-counts">
+                                    {{ '标签使用量：' + tag.usedCounts }}
+                                </div>
                             </div>
 
                         </div>
@@ -100,18 +111,18 @@ export default {
 
 <script setup lang="ts">
 import { customComponentThemeProvider } from '../theme'
-import { ref, Ref, computed,onMounted } from 'vue'
+import { ref, Ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { FireOutlined } from '@vicons/antd'
+import { FireOutlined, UserOutlined } from '@vicons/antd'
 import { Tag20Regular } from '@vicons/fluent'
 import { MdTrophy } from '@vicons/ionicons4'
 import { File } from '@vicons/tabler'
 import { FileStorage } from '@vicons/carbon'
 import { StorageRound } from '@vicons/material'
 import { NIcon, NImage, NNumberAnimation, NumberAnimationInst, NTabs, NTabPane } from 'naive-ui'
-import { UrlConstructor,StatisticsApi,UserApi,DocApi } from '../api-define'
+import { UrlConstructor, StatisticsApi, UserApi, DocApi } from '../api-define'
 import axios from 'axios'
-import {loginStatus} from '../globalStatus'
+import { loginStatus } from '../globalStatus'
 
 const router = useRouter();
 
@@ -134,7 +145,7 @@ interface authorInfo {
     authorPhotoUrl: string,
     docCounts: number
 }
-interface tagInfo{
+interface tagInfo {
     tagName: string,
     usedCounts: number
 }
@@ -165,22 +176,22 @@ function mockedAuthorCharts(): authorInfo[] {
     }
     return result;
 }
-function mockTagCharts():tagInfo[]{
-    const result:tagInfo[] = [];
-    for(let i=0;i<10;i++){
+function mockTagCharts(): tagInfo[] {
+    const result: tagInfo[] = [];
+    for (let i = 0; i < 10; i++) {
         result.push({
-            tagName: '标签'+(i+1),
-            usedCounts: (10-i)*(10-i)
+            tagName: '标签' + (i + 1),
+            usedCounts: (10 - i) * (10 - i)
         })
     }
     return result;
 }
 const mockedVC: DocInfo[] = mockViewCharts();
 const mockedAC: authorInfo[] = mockedAuthorCharts();
-const mockedTC:tagInfo[] = mockTagCharts();
+const mockedTC: tagInfo[] = mockTagCharts();
 
 const docCounts: Ref<number> = ref(0);
-function loadDocCounts(){
+function loadDocCounts() {
     axios(StatisticsApi.getDocCounts()).then(response => {
         docCounts.value = response.data.data;
     }).catch();
@@ -188,16 +199,17 @@ function loadDocCounts(){
 const docViewCharts: Ref<DocInfo[]> = ref([]);
 const authorCharts: Ref<authorInfo[]> = ref([]);
 const tagUsedCharts: Ref<tagInfo[]> = ref([]);
-function loadTagUsedCharts(){
-    axios(StatisticsApi.getTop10Charts('label',false)).then((response)=>{
+function loadTagUsedCharts() {
+    axios(StatisticsApi.getTop10Charts('label', false)).then((response) => {
         //const docIds:Object[] = response.data.data;
-        const data:any[] = response.data.data;
-        for(let obj in data){
-            let object:any = data[obj];
-            for(let key in object){
+        const data: any[] = response.data.data;
+        for (let obj in data) {
+            let object: any = data[obj];
+            for (let key in object) {
                 tagUsedCharts.value.push({
                     tagName: key,
-                    usedCounts: object[key]});
+                    usedCounts: object[key]
+                });
             }
         }
     }).catch();
@@ -206,76 +218,76 @@ function loadTagUsedCharts(){
  * 按照对应的顺序返回头像数组
  * @param usernames 用户名数组
  */
-async function listUserPhotos(usernames:string[]):Promise<string[]>{
-    const result:string[] = [];
+async function listUserPhotos(usernames: string[]): Promise<string[]> {
+    const result: string[] = [];
     const response = await axios(UserApi.listUserPhotos(usernames));
-    const dataObj:any = response.data.data;
-        for(let index in usernames){
-            let location = 'default.png';
-            const username:string = usernames[index];
-            if(dataObj[username] !== undefined && dataObj[username] !== ''){
-                location = dataObj[username];
-            }
-            result.push(UrlConstructor.pictureUrl(location));
+    const dataObj: any = response.data.data;
+    for (let index in usernames) {
+        let url = '';
+        const username: string = usernames[index];
+        if (dataObj[username] !== undefined && dataObj[username] !== '') {
+            url = UrlConstructor.pictureUrl(dataObj[username]);
         }
+        result.push(url);
+    }
     return result;
 }
 
 /**
  * 加载文档编写数排行
  */
-async function loadAuthorCharts():Promise<void> {
-    const response = await axios(StatisticsApi.getTop10Charts('doc-create',false));
-    const responseWithNickname = await axios(StatisticsApi.getTop10Charts('doc-create',true));
+async function loadAuthorCharts(): Promise<void> {
+    const response = await axios(StatisticsApi.getTop10Charts('doc-create', false));
+    const responseWithNickname = await axios(StatisticsApi.getTop10Charts('doc-create', true));
     const chartsData = response.data.data;
-    const usernames:string[] = [];
-    for(let index in chartsData){
-        const username:string = Object.keys(chartsData[index])[0];
+    const usernames: string[] = [];
+    for (let index in chartsData) {
+        const username: string = Object.keys(chartsData[index])[0];
         usernames.push(username);
     }
-    const photos:string[] = await listUserPhotos(usernames);
+    const photos: string[] = await listUserPhotos(usernames);
     const nicknameData = responseWithNickname.data.data;
-    const nicknames:string[] = [];
-    for(let index in nicknameData){
-        const nickname:string = Object.keys(nicknameData[index])[0];
+    const nicknames: string[] = [];
+    for (let index in nicknameData) {
+        const nickname: string = Object.keys(nicknameData[index])[0];
         nicknames.push(nickname);
     }
     authorCharts.value = [];
-    for(let index in usernames){
+    for (let index in usernames) {
         authorCharts.value.push({
             authorName: usernames[index],
             authorNickname: nicknames[index],
             authorPhotoUrl: photos[index],
-            docCounts:<number> Object.values(chartsData[index])[0]
+            docCounts: <number>Object.values(chartsData[index])[0]
         })
     }
 }
 
-async function loadViewCharts():Promise<void>{
-    const response = await axios(StatisticsApi.getTop10Charts('doc-view',false));
+async function loadViewCharts(): Promise<void> {
+    const response = await axios(StatisticsApi.getTop10Charts('doc-view', false));
     const chartsData = response.data.data;
-    const docIds:string[] = [];
-    for(let index in chartsData){
+    const docIds: string[] = [];
+    for (let index in chartsData) {
         docIds.push(Object.keys(chartsData[index])[0]);
     }
     /**构造文档信息的对象 */
     const docInfoResponse = await axios(DocApi.queryDocsById(docIds));
     const docInfoData = docInfoResponse.data.data;
-    const docInfoObject:any = {};
-    for(let index in docInfoData){
-        const info:any = docInfoData[index];
-        const id:string = info['docId'];
+    const docInfoObject: any = {};
+    for (let index in docInfoData) {
+        const info: any = docInfoData[index];
+        const id: string = info['docId'];
         docInfoObject[id] = info;
     }
-    
-    const authors:string[] = [];
-    const result:DocInfo[] = [];
+
+    const authors: string[] = [];
+    const result: DocInfo[] = [];
     /**构造不包含头像信息的响应结果 */
-    for(let index in chartsData){
+    for (let index in chartsData) {
         const id = Object.keys(chartsData[index])[0];
-        const views:string =<string> Object.values(chartsData[index])[0];
-        if(docInfoObject[id] === undefined){
-            console.warn('浏览量排行中有文档未能匹配到对应信息，文档id: '+ id);
+        const views: string = <string>Object.values(chartsData[index])[0];
+        if (docInfoObject[id] === undefined) {
+            console.warn('浏览量排行中有文档未能匹配到对应信息，文档id: ' + id);
             continue;
         }
         const info = docInfoObject[id];
@@ -291,23 +303,23 @@ async function loadViewCharts():Promise<void>{
         })
         authors.push(info.docAuthor);
     }
-    const photos:string[] = await listUserPhotos(authors);
+    const photos: string[] = await listUserPhotos(authors);
     //补上头像信息
-    for(let index in result){
+    for (let index in result) {
         result[index].docAuthorPhotoUrl = photos[index];
     }
     docViewCharts.value = result;
 }
 
-function loadAll():void{
+function loadAll(): void {
     loadDocCounts();
     loadTagUsedCharts();
     loadAuthorCharts();
     loadViewCharts();
 }
 
-onMounted(()=>{
-    loginStatus.registerAction(loadAll,false);
+onMounted(() => {
+    loginStatus.registerAction(loadAll, false);
     loadAll();
 })
 
@@ -402,7 +414,7 @@ numberAnimationInstRef.value?.play();
     left: 100px;
     height: 100%;
     width: calc(100% - 420px);
-    white-space:nowrap;
+    white-space: nowrap;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -445,7 +457,15 @@ numberAnimationInstRef.value?.play();
     position: absolute;
     top: 50%;
     left: 25%;
+    height: 40px;
+    width: 40px;
     transform: translate(-50%, -50%);
+}
+
+.default-icon {
+    position: absolute;
+    background-color: v-bind(colorSet.halfDeep);
+    color: v-bind(colorSet.light);
 }
 
 .photo-area>.author-nickname {
@@ -553,7 +573,13 @@ numberAnimationInstRef.value?.play();
     top: 50%;
     transform: translateY(-50%);
 }
-
+.author-photo > .photo{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+}
 .author-info>.author-nickname {
     position: absolute;
     left: 160px;
@@ -563,7 +589,8 @@ numberAnimationInstRef.value?.play();
     font-size: 20px;
     color: v-bind(colorSet.fontColor3);
 }
-.author-info>.file-display-icon{
+
+.author-info>.file-display-icon {
     position: absolute;
     height: 40px;
     top: 50%;
@@ -571,7 +598,8 @@ numberAnimationInstRef.value?.play();
     transform: translateY(-50%);
     color: v-bind(colorSet.fontColor4);
 }
-.author-info>.author-doc-counts{
+
+.author-info>.author-doc-counts {
     position: absolute;
     height: 100%;
     line-height: 48px;
@@ -580,24 +608,28 @@ numberAnimationInstRef.value?.play();
     font-style: italic;
     color: v-bind(colorSet.fontColor4);
 }
-.common-charts-content>.tag-line{
+
+.common-charts-content>.tag-line {
     position: relative;
     height: 32px;
     margin: 4px 0px 4px 0px;
     padding: 0px 10px 0px 10px;
     color: v-bind(colorSet.specialExtension.tag);
 }
-.tag-line>.tag-icon{
+
+.tag-line>.tag-icon {
     position: absolute;
     left: 20px;
 }
-.tag-line>.tag-name{
+
+.tag-line>.tag-name {
     position: absolute;
     left: 60px;
     width: 120px;
     overflow: hidden;
 }
-.tag-line>.tag-used-counts{
+
+.tag-line>.tag-used-counts {
     position: absolute;
     left: 300px;
     width: 140px;
@@ -605,6 +637,4 @@ numberAnimationInstRef.value?.play();
     font-size: 0.6em;
     overflow: hidden;
     color: v-bind(colorSet.fontColor4);
-}
-
-</style>
+}</style>

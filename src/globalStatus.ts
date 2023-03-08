@@ -27,25 +27,24 @@ export const loginStatus = reactive(
             this.afterLoginSuccessActionTemp.push(action);
         },
         loginFailed(): void {
-            console.log(this);
             this.isLogin = false;
             this.standardProfile.clear();
             this.statusChanged = true;
         },
         loginSuccess(): void {
-            console.log('-----------login success---------');
+            //console.log('-----------login success---------');
             this.isLogin = true;
             //this.profile.name = username;
             this.statusChanged = true;
             //console.log(this.loginUser);
-            console.log('----------------------------');
+            //console.log('----------------------------');
             for (let i in this.afterLoginSuccessAction) {
-                console.log('exec: '+ this.afterLoginSuccessAction[i].name)
+                //console.log('exec: '+ this.afterLoginSuccessAction[i].name)
                 this.afterLoginSuccessAction[i]();
             }
-            console.log('----------------------------');
+            //console.log('----------------------------');
             for (let i in this.afterLoginSuccessActionTemp) {
-                console.log('exec: '+ this.afterLoginSuccessActionTemp[i].name)
+                //console.log('exec: '+ this.afterLoginSuccessActionTemp[i].name)
                 this.afterLoginSuccessActionTemp[i]();
             }
             this.afterLoginSuccessActionTemp = [];//清空
