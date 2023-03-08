@@ -20,7 +20,7 @@
             <LogoGithub />
           </svg>
           <br/>
-          0.2.3-beta | MIT Licence
+          1.0.0-beta | MIT Licence
         </div>
       </n-dialog-provider>
     </n-notification-provider>
