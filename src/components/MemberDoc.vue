@@ -1,14 +1,34 @@
 <template>
-  <div class="component-root" :style="{width:widthPercent+'%' }">
+  <div class="component-root" :style="{ width: widthPercent + '%' }">
     <div class="member-area" :style="memberAreaStyle">
-      <div :class="{'user-name':true,'selected-user-name':selectedMember === member.name}"
+      <!-- <div :class="{'user-name':true,'selected-user-name':selectedMember === member.name}"
            v-for="member in memberArray"
            @click="clickMember(member.name)">
         {{ member.nickname }}
+      </div> -->
+      <div class="selected-member" @click="clickSelectedMember" >
+        <div class="selected-photo">
+          <n-icon class="default-icon" size="200" v-show="selectedMember.photoUrl === ''">
+            <UserOutlined />
+          </n-icon>
+          <img class="selected-photo-img" :src="selectedMember.photoUrl" v-show="selectedMember.photoUrl !== ''" />
+        </div>
+        <div class="selected-nickname">{{ selectedMember.nickname }}</div>
+      </div>
+      <div :class="membersListClass">
+        <div class="member-line" v-for="member in memberArray" @click="clickMember(member)">
+          <div class="line-photo">
+            <n-icon class="default-icon" size="32" v-show="member.photoUrl === ''">
+              <UserOutlined />
+            </n-icon>
+            <img class="line-photo-img" :src="member.photoUrl" v-if="member.photoUrl !== ''" />
+          </div>
+          <div class="member-nickname">{{ member.nickname }}</div>
+        </div>
       </div>
     </div>
     <div class="doc-area">
-      <DocList :docs-api-config="docApiConfig" :style="{top:'0px',height: '100%'}" :loading="false"/>
+      <DocList :docs-api-config="docApiConfig" :style="{ top: '0px', height: '100%' }" :loading="false" />
     </div>
   </div>
 </template>
@@ -20,69 +40,67 @@ export default {
 </script>
 
 <script setup lang="ts">
-import DocList  from "./DocList.vue"
-import {DocInfo} from "../model/models"
-import {ref, onMounted, reactive,Ref,computed} from "vue";
+import DocList from "./DocList.vue"
+import { DocInfo } from "../model/models"
+import { ref, onMounted, reactive, Ref, computed } from "vue";
 import axios from 'axios'
-import {UserApi, DocApi} from '../api-define'
-import {loginStatus} from "../globalStatus";
-import {customComponentThemeProvider,ColorSet} from '../theme'
+import { UserApi, DocApi, UrlConstructor } from '../api-define'
+import { loginStatus } from "../globalStatus";
+import { customComponentThemeProvider, ColorSet } from '../theme'
+import { UserOutlined } from '@vicons/antd'
+import { NIcon } from 'naive-ui'
 
-const memberArray = ref<{ name: string, nickname: string }[]>([]);
+interface member { name: string, nickname: string, photoUrl: string };
 
-function loadMember(mock: boolean, mockSize: number): { name: string, nickname: string }[] {
-  const result: { name: string, nickname: string }[] = [];
+const memberArray = ref<member[]>([]);
+
+function mockMember(mock: boolean, mockSize: number): member[] {
+  const result: member[] = [];
   if (mock) {
     for (let i = 0; i < mockSize; i++) {
-      result.push({name: "用户" + i, nickname: "昵称" + i})
+      result.push({ name: "用户" + i, nickname: "昵称" + i, photoUrl: UrlConstructor.pictureUrl('default.png') })
     }
   }
   return result;
 }
 
-const selectedMember = ref<string>("none")
-const docs:Ref<DocInfo[]> = ref([])
+const defaultMember: member = { name: 'system-all', nickname: '所有用户', photoUrl: '' };
+const selectedMember: Ref<member> = ref<member>(defaultMember);
 const docApiConfig = ref<Object>({});
-function clickMember(memberName: string): void {
-  selectedMember.value = memberName;
-  docs.value = [];
-  docApiConfig.value=DocApi.getDocByAuthor(memberName);
-  /*axios.request(DocApi.getDocByAuthor(memberName)).then((response) => {
-    if (response.data.code === '00000') {
-      for(const i in response.data.data){
-        const row = response.data.data[i];
-        docs.value.push(new DocInfo(row.docId,row.docName,row.authorNickname,row.updateTimestamp));
-      }
-    }
-    if (response.data.code === 'A0200') {
-      //loginStatus.loginFailed();
-    }
-  }).catch();
-  console.log(docs.value);*/
-}
 
-function getAllUser(){
-  //memberArray.value = loadMember(true, 10);
-  axios.request(UserApi.getAllUsers()).then((response) => {
-    if (response.data.code === '00000') {
-      const result: { name: string, nickname: string }[] = [];
-      for (const i in response.data.data) {
-        const member = response.data.data[i];
-        result.push({name: member.userName, nickname: member.userNickname});
-      }
-      memberArray.value = result;
+async function getAllUser() {
+  //memberArray.value = mockMember(true, 10);
+  const result: member[] = [defaultMember];
+  const response = await axios.request(UserApi.getAllUsers());
+  const memberNameArr: string[] = [];
+  if (response.data.code === '00000') {
+    for (const i in response.data.data) {
+      const member = response.data.data[i];
+      result.push({ name: member.userName, nickname: member.userNickname, photoUrl: '' });
+      memberNameArr.push(member.userName);
     }
-    if (response.data.code === 'A0200') {
-      //loginStatus.loginFailed();
+  }
+  if (result.length === 0) {
+    return;
+  }
+  const photoResponse = await axios.request(UserApi.listUserPhotos(memberNameArr));
+  for (let index in result) {
+    let url = '';
+    let location = photoResponse.data.data[result[index].name];
+    if (location !== '' && location !== undefined) {
+      url = UrlConstructor.pictureUrl(location);
     }
-  }).catch()
+    result[index].photoUrl = url;
+  }
+  memberArray.value = result;
 }
 
 onMounted(
-    () => {
-      getAllUser();
-      loginStatus.registerAction(getAllUser);
-    }
+  () => {
+    getAllUser();
+    docApiConfig.value = DocApi.getAllDoc();
+    loginStatus.registerAction(getAllUser);
+  }
 )
 
 defineProps({
@@ -92,21 +110,48 @@ defineProps({
 
 ////////////////////////
 //样式
-const memberAreaStyle = computed<any>(()=>{
+const memberAreaStyle = computed<any>(() => {
   return {
-    backgroundColor:customComponentThemeProvider.value.colorSet.halfLight
+    backgroundColor: customComponentThemeProvider.value.colorSet.halfLight
   }
 })
-const colorSet = computed<ColorSet>(()=>{
+const colorSet = computed<ColorSet>(() => {
   return customComponentThemeProvider.value.colorSet;
 })
+const memberListShow:Ref<boolean> = ref(false);
+const firstLoaded:Ref<boolean> = ref(true);
+const membersListClass = computed(()=>{
+  if(firstLoaded.value){
+    return ['other-members'];
+  }
+  if(memberListShow.value){
+    return ['other-members','other-members-show'];
+  }
+  return ['other-members','other-members-hide'];
+})
+function clickMember(theMember: member): void {
+  firstLoaded.value = false;
+  memberListShow.value = false;
+  selectedMember.value = theMember;
+  if(theMember.name === 'system-all'){
+    docApiConfig.value = DocApi.getAllDoc();
+    return;
+  }
+  docApiConfig.value = DocApi.getDocByAuthor(theMember.name);
+}
+function clickSelectedMember(){
+  console.log(1);
+  memberListShow.value=true;
+  firstLoaded.value = false;
+}
+
 </script>
 
 <style  scoped>
 .component-root {
   position: absolute;
   width: 100%;
-  height: calc(100% );
+  height: calc(100%);
   left: 50%;
   transform: translateX(-50%);
 }
@@ -126,47 +171,135 @@ const colorSet = computed<ColorSet>(()=>{
   width: 20%;
   min-width: 60px;
   height: 100%;
-  overflow: scroll;
+  overflow: hidden;
 }
-.member-area::-webkit-scrollbar{
+
+.member-area::-webkit-scrollbar {
   display: none;
 }
 
-.user-name {
-  height: 40px;
-  font-size: 1.2em;
-  line-height: 40px;
-  padding-left: 10px;
-  user-select: none;
+.selected-member {
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 350px;
 }
 
-.user-name {
+.selected-member:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 6px 6px rgba(0, 0, 0, 20%);
+}
+
+.selected-photo {
+  position: absolute;
+  height: 200px;
+  width: 200px;
+  top: 50px;
+  left: calc(50% - 100px);
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.default-icon {
+  position: absolute;
+  background-color: v-bind(colorSet.halfDeep);
+  color: v-bind(colorSet.light);
+}
+
+.selected-photo-img {
+  position: absolute;
+  width: 204px;
+  height: 204px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.selected-nickname {
+  position: absolute;
+  top: 270px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  user-select: none;
   color: v-bind(colorSet.fontColor3);
 }
 
-.user-name:hover {
-  cursor: pointer;
-  font-size: 1.5em;
-  animation-name: text-shining;
-  animation-fill-mode: both;
+.other-members{
+  position:absolute;
+  top: 400px;
+  height: 0px;
+  width: 100%;
+  overflow-y: scroll;
   animation-duration: 1s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  animation-fill-mode:both;
+}
+.other-members::-webkit-scrollbar{
+  display: none;
+}
+.member-line{
+  position: relative;
+  height: 32px;
+  width: calc(100% - 20px);
+  top: 0px;
+  left: 10px;
+  padding: 16px 0px 16px 0px;
+}
+.line-photo{
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  overflow: hidden;
+}
+.line-photo > .default-icon{
+  position: absolute;
+  height: 32px;
+  width: 32px;
+}
+.line-photo > .line-photo-img{
+  position: absolute;
+  height: 32px;
+  width: 32px;
 }
 
-@keyframes text-shining {
-  0% {
-    color: v-bind(colorSet.fontColor3);
-    text-shadow: 0 0 5px v-bind(colorSet.fontColor3);
-  }
-  100% {
-    color: v-bind(colorSet.fontColor);
-    text-shadow: 0 0 5px v-bind(colorSet.fontColor);
-  }
+.member-line > .member-nickname{
+  position: absolute;
+  left: 50px;
+  top: 50%;
+  transform: translateY(-50%);
+  user-select: none;
+  color: v-bind(colorSet.fontColor4);
 }
 
-.selected-user-name {
+.member-line:hover{
+  cursor: pointer;
   background-color: v-bind(colorSet.deep);
-  text-align: center;
 }
+.other-members-show{
+  animation-name: other-member-list-show;
+}
+.other-members-hide{
+  animation-name: other-member-list-hide;
+}
+@keyframes other-member-list-show{
+  0%{
+    height: 0px;
+  }
+  100%{
+    height: calc(100% - 400px);
+  }
+}
+@keyframes other-member-list-hide{
+  0%{
+    height: calc(100% - 400px);
+  }
+  100%{
+    height: 0px;
+  }
+}
+
 </style>

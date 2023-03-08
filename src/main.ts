@@ -2,10 +2,12 @@ import {createApp, render} from 'vue'
 //import './style.css'
 import App from './App.vue'
 import {createRouter, createWebHistory} from "vue-router";
+import Index from "./components/Index.vue"
 import DocList from "./components/DocList.vue";
 import Milkdown from "./components/Milkdown.vue";
 import MemberDoc from "./components/MemberDoc.vue";
 import MyDoc from "./components/MyDoc.vue";
+import MyDrafts from './components/MyDrafts.vue';
 import Test from "./components/Test.vue";
 import ShowDoc from './components/ShowDoc.vue'
 import AccountManagement from './components/AccountManagement.vue'
@@ -13,6 +15,7 @@ import AccountProfile from './components/AccountProfile.vue'
 import {searchStatus,loginStatus} from './globalStatus'
 import axios from 'axios'
 import {DocApi} from './api-define'
+import { ThemeStatus } from './theme';
 
 //控制缩放
 function bodyScale() {
@@ -23,7 +26,7 @@ function bodyScale() {
 window.onload = window.onresize = function () {
     bodyScale();
 };
-
+//axios 全局异常处理
 axios.interceptors.response.use(function (response) {
     if(response.data.code === 'A0200'){
         loginStatus.loginFailed();
@@ -33,26 +36,42 @@ axios.interceptors.response.use(function (response) {
     console.log(error);
     return Promise.reject(error);
 });
-
+//路由配置
 const webRoute = [
     {
-        name: 'docList',
-        path: "/doc-list", component: DocList, props: {
-            widthPercent: 80,
-            docsApiConfig:DocApi.getAllDoc()
-        }
+        name: 'index',
+        path: '/index',
+        component: Index
     },
     {
-        name: 'memberDoc',
-        path: "/member-doc", component: MemberDoc, props: {
-            widthPercent: 80
+        name: 'docs',
+        path: "/docs", component: MemberDoc, props: {
+            widthPercent: 90
         }
     },
     {
         name: 'myDoc',
         path: "/my-doc", component: MyDoc, props: {
             loading: false,
-            widthPercent: 80
+            widthPercent: 90
+        }
+    },
+    {
+        name: 'myDraft',
+        path: "/my-draft", component: MyDrafts, props: {
+            loading: false,
+            widthPercent: 90
+        }
+    },
+    {
+        name: 'myCollection',
+        path: "/my-collection", component: DocList,
+        props(){
+            return {
+                docsApiConfig:DocApi.listMyCollections(),
+                loading: false,
+                widthPercent: 90
+            }
         }
     },
     {
@@ -72,13 +91,19 @@ const webRoute = [
         }
     },
     {
+        name: 'editDraft',
+        path: '/edit-draft/:docId', component: Milkdown, props: {
+            preload: true,
+        }
+    },
+    {
         name: 'searchResult',
         path: "/result", component: DocList,
         props(){
             return {
                 docsApiConfig:searchStatus.value.searchApi,
                 loading: false,
-                widthPercent: 80
+                widthPercent: 90
             }
         }
     },
@@ -87,22 +112,43 @@ const webRoute = [
         path: '/account-management',
         component: AccountManagement
     },
-    {
-        name:'accountProfile',
-        path:'/profile',
-        component: AccountProfile
-    }
-    ,
+    // {
+    //     name:'accountProfile',
+    //     path:'/profile',
+    //     component: AccountProfile
+    // }
+    // ,
     {
         name: 'test',
         path: '/test',component: Test
     }
 ]
-
 const router = createRouter({
     history: createWebHistory(),
     routes: webRoute
 })
+router.beforeEach(async (to,from)=>{
+    if(to.fullPath === '/' || to.fullPath === ''){
+        return {name: 'index'}
+    }
+})
+
 const vue = createApp(App);
 vue.use(router).mount('#app');
 export {vue,webRoute};
+
+//默认主题跟随系统
+const themeMedia = window.matchMedia("(prefers-color-scheme: light)");
+if(themeMedia.matches){
+    ThemeStatus.value.change('NordSnowStorm');
+}else{
+    ThemeStatus.value.change('NordPolarNight');
+}
+//系统主题切换时跟随变化
+themeMedia.addEventListener( "change",e => {
+    if(themeMedia.matches){
+        ThemeStatus.value.change('NordSnowStorm');
+    }else{
+        ThemeStatus.value.change('NordPolarNight');
+    }
+} )

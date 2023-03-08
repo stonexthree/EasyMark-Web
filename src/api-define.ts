@@ -1,4 +1,6 @@
-export {UserApi, DocApi, TagApi, SearchApi,PictureApi,UrlConstructor}
+import { type } from "os"
+
+export {UserApi, DocApi, TagApi, SearchApi,PictureApi,UrlConstructor,StatisticsApi}
 const baseURL = '/api/'
 const UserApi = {
     'login': (username: string, password: string) => {
@@ -83,6 +85,15 @@ const UserApi = {
                 nickname: nickname
             }
         }
+    },
+    listUserPhotos:(names:Array<string>) => {
+        return {
+            url: baseURL + 'user/photos',
+            method: 'GET',
+            params:{
+                usernames: names.join(',')
+            }
+        }
     }
 }
 
@@ -91,6 +102,17 @@ const DocApi = {
         return {
             url: baseURL + 'doc/list',
             method: 'GET'
+        }
+    },
+    'queryDocsById': (ids: string[])=>{
+        const form: FormData = new FormData;
+        for(let index in ids){
+            form.append('id',ids[index]);
+        }
+        return{
+            url: baseURL + 'doc/query/condition',
+            method: 'POST',
+            data: form
         }
     },
     'getDocByAuthor': (author: string) => {
@@ -102,6 +124,12 @@ const DocApi = {
     'getMyDocs': () => {
         return {
             url: baseURL + 'doc/my-doc',
+            method: 'GET'
+        }
+    },
+    'getMyDrafts': () => {
+        return {
+            url: baseURL + 'doc/my-drafts',
             method: 'GET'
         }
     },
@@ -134,6 +162,17 @@ const DocApi = {
             }
         }
     },
+    'saveDocAsDraft': (docName: string, content: string) => {
+        return {
+            url: baseURL + 'doc/draft',
+            method: 'POST',
+            headers: {'Content-Type': 'multipart/form-data; '},
+            data: {
+                docName: docName,
+                content: content
+            }
+        }
+    },
     'modifyDoc': (docId: string, content: string) => {
         return {
             url: baseURL + 'doc/markdown/content/' + docId,
@@ -152,6 +191,43 @@ const DocApi = {
             data: {
                 name: title
             }
+        }
+    },
+    'submitDraft':(docId: string ,labelName:string[] = []) =>{
+            return {
+                url: baseURL + 'doc/draft/submit',
+                method: 'PUT',
+                headers: {'Content-Type': 'multipart/form-data; '},
+                data: labelName.length === 0? {
+                    'doc-id':docId,
+                }:{
+                    'doc-id':docId,
+                    'label-name': labelName.join(',')
+                }
+            }
+    },
+    'collectDoc':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collections/' + docId,
+            method: 'PUT'
+        }
+    },
+    'removeCollected':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collections/' + docId,
+            method: 'DELETE'
+        }
+    },
+    'listMyCollections':()=>{
+        return {
+            url: baseURL + 'doc/collections',
+            method: 'GET'
+        }
+    },
+    'isDocCollected':(docId:string)=>{
+        return {
+            url: baseURL + 'doc/collect/status/' + docId,
+            method: 'GET'
         }
     }
 }
@@ -191,6 +267,12 @@ const SearchApi = {
     },
 }
 
+/**
+ * 图片相关的Api
+ * 
+ * upload 上传图片
+ * upoloadUserPhoto 上传图片作为当前用户头像
+ */
 const PictureApi = {
     upload:(form:FormData) => {
         return {
@@ -198,12 +280,45 @@ const PictureApi = {
             method: 'POST',
             data: form
         }
+    },
+    upoloadUserPhoto:(form:FormData) => {
+        return {
+            url: baseURL + 'user/photo',
+            method: 'POST',
+            data: form
+        }
     }
 }
 
+/**
+ * 统计API
+ * 
+ * refreshCharts 重新触发服务端的排行榜统计
+ */
+const StatisticsApi = {
+    getDocCounts:() =>{
+        return {
+            url: baseURL + 'statistics/doc-num',
+            method: 'GET'
+        }
+    },
+    getTop10Charts:(chartsType : ChartsType,useDictionary:boolean)=>{
+        return {
+            url: baseURL + 'statistics/charts/' + chartsType,
+            method: 'GET',
+            params:{'useDictionary':useDictionary}
+        }
+    },
+    refreshCharts:()=>{
+        return {
+            url: baseURL + 'statistics/refresh',
+            method: 'GET'
+        }
+    }
+}
 const UrlConstructor = {
     pictureUrl:(name:string):string=>{
         return '/picture/'+name;
     }
 }
-
+export type ChartsType = 'label'|'doc-view'|'doc-create';

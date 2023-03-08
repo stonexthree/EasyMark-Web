@@ -1,7 +1,7 @@
 <template>
-  <SearchTool />
   <div class="head-line-container">
-    <div class="logo">
+    <SearchTool />
+    <div class="logo" @click="router.push('/index')">
       <n-icon size="64" :color="colorSet.fontColor" class="img-logo" >
         <DrawFilled />
       </n-icon>
@@ -34,7 +34,7 @@
         </div>
         <div class="account-action-div">
           <n-icon size="32" :color=iconColor
-                  @click="router.push({name:'accountProfile'})" style="left: 32px" class="profile-icon account-action">
+                  @click="showAccountProfileModal=true" style="left: 32px" class="profile-icon account-action">
             <UserProfile/>
           </n-icon>
           <n-icon size="32" :color=iconColor
@@ -61,6 +61,12 @@
     >
       <SetPasswordForm @submitted="onFormSubmitted"/>
     </n-modal>
+    <n-modal 
+    v-model:show="showAccountProfileModal" 
+    :style="{width:'800px',height:'400px',position:'fixed',top:'50%',left: '50%',transform: 'translate(-50%,-50%)'}"
+    display-directive="show">
+      <AccountProfile />
+    </n-modal>
   </div>
 </template>
 
@@ -83,6 +89,7 @@ import {UserApi} from "../api-define";
 import axios from 'axios'
 import SearchTool from './SearchTool.vue'
 import SetPasswordForm from './sub/SetPasswordForm.vue'
+import AccountProfile from './AccountProfile.vue'
 import {customComponentThemeProvider,ThemeName,ThemeStatus} from '../theme'
 
 
@@ -94,7 +101,7 @@ const showSetPasswordModal:Ref<boolean> = ref(false);
 function onFormSubmitted(){
   showSetPasswordModal.value=false;
 }
-
+const showAccountProfileModal:Ref<boolean> = ref(false);
 /*function loadNickname(){
   axios.request(UserApi.getLoginUserNickname()).then(
       (response) => {
@@ -159,13 +166,16 @@ const zIndex:Ref<any>=ref(2);
 .logo {
   position: absolute;
   height: 100%;
-  width: 400px;
+  width: 200px;
   left: 48px;
   color: v-bind(colorSet.fontColor);
   font-size: 4em;
   user-select: none;
   line-height: 80px;
   font-style: italic;
+}
+.logo:hover{
+  cursor:pointer;
 }
 
 .theme-change{

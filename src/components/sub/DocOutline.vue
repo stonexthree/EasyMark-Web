@@ -147,7 +147,9 @@ const nodeProps: (arg: any) => any = ({option}: { option: TreeOption }) => {
   return {
     onClick() {
       const a = document.createElement('a') as HTMLAnchorElement;
-      a.href='#' + option.label;
+      const ignoreReg = /[`~!@#$%^&*()+=|{}':;',/\/\[\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]/g;
+      const targetId = option.label?.replaceAll(' ','-').replaceAll(ignoreReg,'').toLowerCase();
+      a.href='#' + targetId;
       //router.push(router.currentRoute.value.path + '#' + option.label);
       a.click();
     }
@@ -163,7 +165,7 @@ const nodeProps: (arg: any) => any = ({option}: { option: TreeOption }) => {
   width: 200px;
   overflow: scroll;
   height: 600px;
-  animation-duration: 1s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 

@@ -28,7 +28,14 @@ export interface ColorSet {
     heightLight3: string,
     heightLight4: string,
     extension1: string,
-    extension2: string
+    extension2: string,
+    specialExtension: {
+        tag: string,
+        fire: string,
+        goldMedal: string,
+        silverMedal: string,
+        bronzMedal: string
+    }
 }
 
 export type ThemeName = 'NordPolarNight' | 'NordSnowStorm';
@@ -52,7 +59,14 @@ const nordPolarNightColorSet: ColorSet = {
     heightLight3: '#4C566A',
     heightLight4: '#4C566A',
     extension1: '#1E92A0FF',
-    extension2: '#191C21'
+    extension2: '#191C21',
+    specialExtension: {
+        tag: '#9cce74',
+        fire: '#ff9898',
+        goldMedal: '#fff3b5',
+        silverMedal: '#a2c9d4',
+        bronzMedal: '#9f6464'
+    }
 };
 const nordPolarNightTheme: ThemeProvider = {
     perSet: darkTheme,
@@ -123,7 +137,14 @@ const nordSnowStormColorSet: ColorSet = {
     heightLight3: '#B8B2D3',
     heightLight4: '#8A80B2',
     extension1: '#7A8CAB',
-    extension2: '#AEBACF'
+    extension2: '#AEBACF',
+    specialExtension: {
+        tag: '#59b70e',
+        fire: '#ff9898',
+        goldMedal: '#fff3b5',
+        silverMedal: '#a2c9d4',
+        bronzMedal: '#9f6464'
+    }
 };
 const nordSnowStormTheme: ThemeProvider = {
     perSet: null,
@@ -233,3 +254,40 @@ export const ThemeStatus: Ref<{ currentTheme: ThemeName, themes: ThemeName[], ch
         changeTheme(ThemeStatus.value.themes[nextIndex]);
     }
 });
+
+
+/**
+ * 十六进制color颜色/RGBA/RGB，改变透明度
+ * @param {*} thisColor #555 rgba(85,85,85,0.6) rgb(85,85,85)
+ * @param {*} thisOpacity 0.7
+ * @returns rgba(85,85,85,0.7)
+ */
+export function getOpacityColor(thisColor:string, thisOpacity:number) {
+    var theColor = thisColor.toLowerCase();
+    //十六进制颜色值的正则表达式
+    var r = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
+    // 如果是16进制颜色
+    if (theColor && r.test(theColor)) {
+      if (theColor.length === 4) {
+        var sColorNew = '#';
+        for (var i = 1; i < 4; i += 1) {
+          sColorNew += theColor.slice(i, i + 1).concat(theColor.slice(i, i + 1));
+        }
+        theColor = sColorNew;
+      }
+      //处理六位的颜色值
+      var sColorChange = [];
+      for (var j = 1; j < 7; j += 2) {
+        sColorChange.push(parseInt('0x' + theColor.slice(j, j + 2)));
+      }
+      return 'rgba(' + sColorChange.join(',') + ',' + thisOpacity + ')';
+    }
+    // 如果是rgba或者rgb
+    if (theColor.startsWith('rgb')) {
+      let numbers:any = theColor.match(/(\d(\.\d+)?)+/g);
+      numbers = (numbers?.slice(0, 3).concat(thisOpacity));
+      return 'rgba(' + numbers.join(',') + ')';
+    }
+    return theColor;
+  }
+  

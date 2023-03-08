@@ -17,9 +17,10 @@ import {customComponentThemeProvider,ColorSet} from "../theme";
 const router = useRouter()
 const options:Ref<{optionsKey:string,routeName:string,routePath:string}[]> = ref([])
 const commonOptions:{optionsKey:string,routeName:string,routePath:string}[] = [
-  { optionsKey: 'docList',routeName: '文档列表', routePath: '/doc-list'},
-  {optionsKey: 'memberDoc',routeName: '成员文档', routePath: '/member-doc'},
+  {optionsKey: 'docList',routeName: '浏览文档', routePath: '/docs'},
   {optionsKey:'myDoc',routeName: '我的文档', routePath: '/my-doc'},
+  {optionsKey:'myDraft',routeName: '我的草稿', routePath: '/my-draft'},
+  {optionsKey:'myCollection',routeName: '我的收藏', routePath: '/my-collection'},
   {optionsKey: 'newDoc',routeName: '编写文档', routePath: '/new-doc'},
 ]
 const adminOptions:{optionsKey:string,routeName:string,routePath:string}[] = [
@@ -101,4 +102,5 @@ export default {
   border-color: v-bind(colorSet.extension1);
   background-color: v-bind(colorSet.halfDeep);
 }
+
 </style>
